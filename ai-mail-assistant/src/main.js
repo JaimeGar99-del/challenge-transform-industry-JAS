@@ -269,3 +269,5 @@ btnPdf.addEventListener("click", () => {
   `);
   printWindow.document.close();
 });
+
+//actualizado
