@@ -2,6 +2,7 @@ import "./style.css";
 import { marked } from "https://cdn.jsdelivr.net/npm/marked@9.1.6/+esm";
 
 const app = document.querySelector("#app");
+const history = [];
 
 app.innerHTML = `
   <div class="bg-noise"></div>
