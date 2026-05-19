@@ -12,11 +12,106 @@ app.innerHTML = `
         <h1>AI Mail Assistant</h1>
         <p class="subtitle">Comunicación empresarial con IA local</p>
       </div>
-      <div class="model-badge">
-        <span class="dot"></span>
-        <span id="model-label">tinyllama</span>
+      <div class="header-right">
+        <div class="model-badge">
+          <span class="dot"></span>
+          <span id="model-label">tinyllama</span>
+        </div>
+        <button class="info-toggle" id="info-toggle" title="Ver tecnologías y roadmap">ℹ</button>
       </div>
     </header>
+
+    <!-- Info Panel: Tech Stack + Roadmap -->
+    <div class="info-panel" id="info-panel">
+      <div class="info-grid">
+        <div class="info-section">
+          <div class="info-section-title">
+            <span class="info-icon">⚙️</span>
+            TECNOLOGÍAS USADAS
+          </div>
+          <div class="tech-list">
+            <div class="tech-item">
+              <span class="tech-badge vite">VITE</span>
+              <span class="tech-desc">Build tool ultrarrápido con HMR nativo</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-badge js">JS</span>
+              <span class="tech-desc">JavaScript Vanilla — sin frameworks, máximo control</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-badge ollama">OLLAMA</span>
+              <span class="tech-desc">Motor LLM local vía API REST en localhost:11434</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-badge phi">PHI-3</span>
+              <span class="tech-desc">Modelo base — también soporta tinyllama, llama3, mistral</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-badge marked">MARKED</span>
+              <span class="tech-desc">Renderizado Markdown en tiempo real con streaming</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <div class="info-section-title">
+            <span class="info-icon">🗺️</span>
+            ROADMAP DE EVOLUCIÓN
+          </div>
+          <div class="roadmap-list">
+            <div class="roadmap-item done">
+              <span class="road-status">✓</span>
+              <div class="road-content">
+                <span class="road-title">Streaming en tiempo real</span>
+                <span class="road-desc">Respuesta token a token vía ReadableStream</span>
+              </div>
+            </div>
+            <div class="roadmap-item done">
+              <span class="road-status">✓</span>
+              <div class="road-content">
+                <span class="road-title">Exportar TXT / PDF</span>
+                <span class="road-desc">Descarga directa y print-to-PDF con estilos</span>
+              </div>
+            </div>
+            <div class="roadmap-item done">
+              <span class="road-status">✓</span>
+              <div class="road-content">
+                <span class="road-title">Render Markdown</span>
+                <span class="road-desc">Vista previa y modo fuente alternables</span>
+              </div>
+            </div>
+            <div class="roadmap-item pending">
+              <span class="road-status">○</span>
+              <div class="road-content">
+                <span class="road-title">Mejorar prompts</span>
+                <span class="road-desc">Plantillas por caso de uso y few-shot examples</span>
+              </div>
+            </div>
+            <div class="roadmap-item pending">
+              <span class="road-status">○</span>
+              <div class="road-content">
+                <span class="road-title">Persistencia</span>
+                <span class="road-desc">Historial de correos en localStorage / IndexedDB</span>
+              </div>
+            </div>
+            <div class="roadmap-item pending">
+              <span class="road-status">○</span>
+              <div class="road-content">
+                <span class="road-title">Modularizar componentes</span>
+                <span class="road-desc">Separar en módulos ES reutilizables</span>
+              </div>
+            </div>
+            <div class="roadmap-item pending">
+              <span class="road-status">○</span>
+              <div class="road-content">
+                <span class="road-title">Nuevas funcionalidades</span>
+                <span class="road-desc">Historial, plantillas, multi-destinatario, adjuntos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="editor-grid">
       <div class="panel input-panel">
@@ -59,14 +154,27 @@ app.innerHTML = `
           <span class="btn-icon">⚡</span>
           <span id="btn-text">Generar correo</span>
         </button>
+
+        <!-- Streaming indicator -->
+        <div class="stream-indicator" id="stream-indicator">
+          <div class="stream-bar">
+            <div class="stream-fill"></div>
+          </div>
+          <span class="stream-label">Generando tokens...</span>
+        </div>
       </div>
 
       <div class="panel result-panel">
         <div class="result-header">
           <label class="panel-label">RESPUESTA IA</label>
-          <div class="view-toggle">
-            <button class="toggle-btn active" id="btn-preview">Vista previa</button>
-            <button class="toggle-btn" id="btn-raw">Markdown</button>
+          <div class="result-header-right">
+            <div class="token-counter" id="token-counter">
+              <span id="token-count">0</span>&nbsp;tokens
+            </div>
+            <div class="view-toggle">
+              <button class="toggle-btn active" id="btn-preview">Vista previa</button>
+              <button class="toggle-btn" id="btn-raw">Markdown</button>
+            </div>
           </div>
         </div>
 
@@ -87,6 +195,9 @@ app.innerHTML = `
           <button class="action-btn" id="btn-pdf" title="Exportar PDF">
             <span>🖨️</span> PDF
           </button>
+          <button class="action-btn" id="btn-clear" title="Limpiar resultado">
+            <span>🗑️</span> Limpiar
+          </button>
           <div id="copy-toast" class="toast">¡Copiado!</div>
         </div>
       </div>
@@ -97,7 +208,8 @@ app.innerHTML = `
 // ─── State ────────────────────────────────────────────────────────────────────
 let rawMarkdown = "";
 let isStreaming = false;
-let currentView = "preview"; // "preview" | "raw"
+let currentView = "preview";
+let tokenCount = 0;
 
 // ─── Elements ─────────────────────────────────────────────────────────────────
 const generateBtn = document.querySelector("#generate");
@@ -109,11 +221,25 @@ const btnRaw = document.querySelector("#btn-raw");
 const btnCopy = document.querySelector("#btn-copy");
 const btnTxt = document.querySelector("#btn-txt");
 const btnPdf = document.querySelector("#btn-pdf");
+const btnClear = document.querySelector("#btn-clear");
 const copyToast = document.querySelector("#copy-toast");
 const modelSelect = document.querySelector("#model");
 const modelLabel = document.querySelector("#model-label");
+const streamIndicator = document.querySelector("#stream-indicator");
+const tokenCounter = document.querySelector("#token-counter");
+const tokenCountEl = document.querySelector("#token-count");
+const infoToggle = document.querySelector("#info-toggle");
+const infoPanel = document.querySelector("#info-panel");
 
-// Sync model badge
+// ─── Info panel toggle ────────────────────────────────────────────────────────
+let infoPanelOpen = false;
+infoToggle.addEventListener("click", () => {
+  infoPanelOpen = !infoPanelOpen;
+  infoPanel.classList.toggle("open", infoPanelOpen);
+  infoToggle.classList.toggle("active", infoPanelOpen);
+});
+
+// ─── Sync model badge ─────────────────────────────────────────────────────────
 modelSelect.addEventListener("change", () => {
   modelLabel.textContent = modelSelect.value;
 });
@@ -144,11 +270,21 @@ function renderMarkdown(text) {
 
 function appendMarkdown(chunk) {
   rawMarkdown += chunk;
+  tokenCount = Math.round(rawMarkdown.length / 4);
+  tokenCountEl.textContent = tokenCount;
   resultPreview.innerHTML = marked.parse(rawMarkdown);
   resultRaw.value = rawMarkdown;
-  // Auto-scroll
   resultPreview.scrollTop = resultPreview.scrollHeight;
 }
+
+// ─── Clear ────────────────────────────────────────────────────────────────────
+btnClear.addEventListener("click", () => {
+  rawMarkdown = "";
+  tokenCount = 0;
+  tokenCountEl.textContent = "0";
+  resultPreview.innerHTML = `<span class="placeholder-text">La respuesta aparecerá aquí...</span>`;
+  resultRaw.value = "";
+});
 
 // ─── Generate ─────────────────────────────────────────────────────────────────
 generateBtn.addEventListener("click", async () => {
@@ -165,8 +301,12 @@ generateBtn.addEventListener("click", async () => {
   if (isStreaming) return;
   isStreaming = true;
   rawMarkdown = "";
+  tokenCount = 0;
+  tokenCountEl.textContent = "0";
+
   generateBtn.classList.add("loading");
   btnText.textContent = "Generando...";
+  streamIndicator.classList.add("active");
   resultPreview.innerHTML = `<span class="cursor-blink">▌</span>`;
   resultRaw.value = "";
 
@@ -219,6 +359,7 @@ IMPORTANTE:
     isStreaming = false;
     generateBtn.classList.remove("loading");
     btnText.textContent = "Generar correo";
+    streamIndicator.classList.remove("active");
   }
 });
 
@@ -269,5 +410,3 @@ btnPdf.addEventListener("click", () => {
   `);
   printWindow.document.close();
 });
-
-//actualizado
