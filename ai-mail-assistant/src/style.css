@@ -19,6 +19,7 @@
   --text-muted: #64748b;
   --text-dim: #94a3b8;
   --success: #10b981;
+  --warning: #f59e0b;
   --mono: 'DM Mono', monospace;
   --sans: 'Syne', sans-serif;
 }
@@ -66,8 +67,8 @@ body {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
   border-bottom: 1px solid var(--border);
 }
 
@@ -98,8 +99,14 @@ h1 {
   font-family: var(--mono);
 }
 
-.model-badge {
+.header-right {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.model-badge {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -123,6 +130,156 @@ h1 {
 @keyframes pulse {
   0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
   50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
+}
+
+/* ─── Info toggle button ─────────────────────────────────────────────────────── */
+.info-toggle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+
+.info-toggle:hover,
+.info-toggle.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--surface-2);
+}
+
+/* ─── Info Panel ─────────────────────────────────────────────────────────────── */
+.info-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  max-height: 0;
+  padding: 0;
+  border-width: 0;
+  transition: max-height 0.35s ease, padding 0.3s ease, border-width 0.1s ease;
+}
+
+.info-panel.open {
+  max-height: 400px;
+  padding: 1.25rem;
+  border-width: 1px;
+  margin-bottom: 1rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .info-grid { grid-template-columns: 1fr; }
+}
+
+.info-section-title {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ─── Tech List ──────────────────────────────────────────────────────────────── */
+.tech-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.tech-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.tech-badge {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 5px;
+  flex-shrink: 0;
+  min-width: 52px;
+  text-align: center;
+}
+
+.tech-badge.vite    { background: rgba(100, 108, 255, 0.15); color: #818cf8; border: 1px solid rgba(129, 140, 248, 0.25); }
+.tech-badge.js      { background: rgba(251, 191, 36, 0.12);  color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.25); }
+.tech-badge.ollama  { background: rgba(16, 185, 129, 0.12);  color: #34d399; border: 1px solid rgba(52, 211, 153, 0.25); }
+.tech-badge.phi     { background: rgba(59, 130, 246, 0.12);  color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.25); }
+.tech-badge.marked  { background: rgba(244, 114, 182, 0.12); color: #f472b6; border: 1px solid rgba(244, 114, 182, 0.25); }
+
+.tech-desc {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-family: var(--mono);
+}
+
+/* ─── Roadmap ────────────────────────────────────────────────────────────────── */
+.roadmap-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.roadmap-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.road-status {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-top: 1px;
+  width: 14px;
+}
+
+.roadmap-item.done .road-status   { color: var(--success); }
+.roadmap-item.pending .road-status { color: var(--text-muted); }
+
+.road-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.road-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.roadmap-item.pending .road-title { color: var(--text-dim); }
+
+.road-desc {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
 }
 
 /* ─── Grid ──────────────────────────────────────────────────────────────────── */
@@ -282,11 +439,73 @@ select:focus {
   font-size: 1rem;
 }
 
+/* ─── Stream indicator ───────────────────────────────────────────────────────── */
+.stream-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  transition: opacity 0.2s, height 0.2s;
+}
+
+.stream-indicator.active {
+  opacity: 1;
+  height: 20px;
+}
+
+.stream-bar {
+  flex: 1;
+  height: 3px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.stream-fill {
+  height: 100%;
+  width: 40%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 99px;
+  animation: stream-slide 1.2s ease-in-out infinite;
+}
+
+@keyframes stream-slide {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+
+.stream-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
 /* ─── Result panel ──────────────────────────────────────────────────────────── */
 .result-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.result-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.token-counter {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  display: flex;
+  align-items: center;
 }
 
 .view-toggle {
@@ -462,6 +681,11 @@ select:focus {
   border-color: var(--accent);
   color: var(--text);
   background: var(--surface);
+}
+
+#btn-clear:hover {
+  border-color: #ef4444;
+  color: #ef4444;
 }
 
 /* ─── Toast ─────────────────────────────────────────────────────────────────── */
