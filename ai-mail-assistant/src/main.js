@@ -1,71 +1,51 @@
+import "./style.css";
 
-    import "./style.css";
+// ─── Layout ───────────────────────────────────────────────────────────────────
+import { renderAppHTML }     from "./layout.js";
 
-    const app = document.querySelector("#app");
+// ─── UI ───────────────────────────────────────────────────────────────────────
+import {
+  initViewToggle,
+  initInfoPanel,
+  initModelBadge,
+  initClearResult,
+} from "./ui.js";
 
-    app.innerHTML = `
-      <main class="container">
-        <h1>AI Mail Assistant</h1>
+// ─── Plantillas ───────────────────────────────────────────────────────────────
+import { renderTemplatePills } from "./templatePills.js";
 
-        <textarea id="input" placeholder="Ejemplo: Necesito responder a un cliente molesto..."></textarea>
+// ─── Exportaciones ────────────────────────────────────────────────────────────
+import { initCopy, initExportTxt, initExportPdf } from "./export.js";
 
-        <select id="tone">
-          <option value="formal">Formal</option>
-          <option value="amigable">Amigable</option>
-          <option value="profesional">Profesional</option>
-        </select>
+// ─── Historial ────────────────────────────────────────────────────────────────
+import { initHistory } from "./history.js";
 
-        <br />
+// ─── Generación IA ───────────────────────────────────────────────────────────
+import { initGenerate } from "./generate.js";
 
-        <button id="generate">Generar con IA</button>
+// ─── Estado global compartido ─────────────────────────────────────────────────
+const state = {
+  rawMarkdown:     "",
+  isStreaming:     false,
+  currentView:     "preview",
+  tokenCount:      0,
+  infoPanelOpen:   false,
+  historyPanelOpen: false,
+};
 
-        <section class="result" id="result">
-          La respuesta aparecerá aquí...
-        </section>
-      </main>
-    `;
+// ─── Bootstrap ────────────────────────────────────────────────────────────────
+renderAppHTML();          // 1. Montar HTML en #app
 
-    const button = document.querySelector("#generate");
-    const result = document.querySelector("#result");
+renderTemplatePills();    // 2. Plantillas
+initViewToggle(state);    // 3. Toggle preview / markdown
+initInfoPanel(state);     // 4. Panel de info/roadmap
+initModelBadge();         // 5. Badge del modelo activo
+initClearResult(state);   // 6. Botón limpiar resultado
 
-    button.addEventListener("click", async () => {
-      const input = document.querySelector("#input").value;
-      const tone = document.querySelector("#tone").value;
+initCopy(state);          // 7. Copiar al portapapeles
+initExportTxt(state);     // 8. Exportar TXT
+initExportPdf(state);     // 9. Exportar PDF
 
-      if (!input.trim()) {
-        result.textContent = "Debes escribir contenido.";
-        return;
-      }
+initHistory(state);       // 10. Historial localStorage
 
-      result.textContent = "Generando respuesta con phi3...";
-
-      const prompt = `
-
-Actúa como un asistente empresarial.
-Redacta un correo profesional con tono ${tone} basado en:
-
-${input}
-
-      `;
-
-      try {
-        const response = await fetch("http://localhost:11434/api/generate", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "phi3",
-            prompt,
-            stream: false,
-          }),
-        });
-
-        const data = await response.json();
-
-        result.textContent = data.response;
-      } catch (error) {
-        result.textContent = "Error conectando con Ollama.";
-        console.error(error);
-      }
-    });
+initGenerate(state);      // 11. Generación con Ollama (streaming)
